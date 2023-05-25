@@ -22,6 +22,6 @@
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "slugify": "^1.6.5",
-    "ytdl-core": "^4.11.2"
+    "ytdl-core": "^4.11.4"
   }
 }
