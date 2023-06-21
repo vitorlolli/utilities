@@ -19,7 +19,7 @@ const getYoutubePlaylistVideosIds = async playlist_id => {
 const videoDownload = id => new Promise(async (resolve, reject) => {
     let { videoDetails } = await ytdl.getInfo(id)
     const { title, video_url } = videoDetails
-    const path = `./videos/${slugify(title, '_')}.mp4`
+    const path = `./videos/${slugify(title, { replacement: '_', lower: true })}.mp4`
     ytdl(video_url, { quality: 'highest', filter: 'audioandvideo' })
         .pipe(fs.createWriteStream(path))
         .on("finish", async () => {
@@ -35,7 +35,7 @@ console.log(`${videos_ids.length} videos`)
 console.log('downloading')
 for (let index = 0; index < videos_ids.length; index++) {
     const video_id = videos_ids[index]
-    const label = `${index + 1}/${videos_ids.length} ${video_id} downloaded`
+    const label = `${index + 1}/${videos_ids.length}`
     console.time(label)
     await videoDownload(video_id)
     console.timeEnd(label)
