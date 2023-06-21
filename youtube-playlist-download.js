@@ -55,4 +55,4 @@ for (let index = 0; index < videos_ids.length; index++) {
 
 console.log('')
 
-console.log('finish')
+console.log(chalk.green('finish'))
