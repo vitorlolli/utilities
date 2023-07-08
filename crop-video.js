@@ -51,14 +51,3 @@ const cropVideo = (videoPath, outputPath, startTime, endTime, options) => new Pr
         })
         .run()
 })
-
-const videoPath = ''
-
-await cropVideo(
-    videoPath, 
-    './video.mp4',
-    '00:26:16', 
-    '00:27:67', {
-        whatsAppPreview: true
-    }
-)
