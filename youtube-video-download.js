@@ -6,6 +6,28 @@ import ffmpegPath from '@ffmpeg-installer/ffmpeg'
 
 ffmpeg.setFfmpegPath(ffmpegPath.path)
 
+const convertToMp3 = (videoPath, mp3Path) => new Promise(async (resolve, reject) => {
+    ffmpeg({ source: videoPath })
+        .saveToFile(mp3Path)
+        .on('start', function (commandLine) {
+            console.log('Processing')
+        })
+        .on('end', function (err) {
+            if (!err) {
+                console.log('conversion Done')
+                resolve()
+            }
+            else {
+                reject()
+            }
+        })
+        .on('error', err => {
+            console.log('error: ', err)
+            reject()
+        })
+        .run()
+})
+
 const videoDownload = id => new Promise(async (resolve, reject) => {
     let { videoDetails } = await ytdl.getInfo(id)
     const { title, video_url } = videoDetails
@@ -20,4 +42,4 @@ const videoDownload = id => new Promise(async (resolve, reject) => {
         })
 })
 
-const videoPath = await videoDownload('xHCnrdf2NBI')
+const videoPath = await videoDownload('QWJDlUH8R-0')
