@@ -20,9 +20,12 @@ const videoDownload = ({ id, dir = path.resolve(), audioOnly = false }) => new P
         })
 })
 
-const getYoutubePlaylistVideosIds = async playlist_id => {
+const getPlaylistInfo = async playlist_id => {
     const ids = []
     let result = await ytpl(playlist_id, { pages: 1 })
+    const info = {
+        title: result.title
+    }
     ids.push(...result.items.map(item => item.id))
     let continuation = result.continuation
     while (continuation) {
@@ -30,10 +33,13 @@ const getYoutubePlaylistVideosIds = async playlist_id => {
         ids.push(...next.items.map(item => item.id))
         continuation = next.continuation
     }
-    return ids
+    return {
+        ...info,
+        videosId: ids
+    }
 }
 
 export default {
     videoDownload,
-    getYoutubePlaylistVideosIds
+    getPlaylistInfo
 }
