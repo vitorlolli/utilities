@@ -1,0 +1,11 @@
+{
+    "client_id": "384eafb16fef4a89bdb9b7a58f39cd9d",
+    "client_secret": "b9dc25da5ead4a698ec11fde4150ca2e",
+    "redirect_url": "http://localhost",
+    "access_token": "BQD30Kkuo_NHfk1ybBoOQpWECFJS6rG71rU0lMFty_-giAX-rfDdWRKpRlDQVNBS_xHfALeAyXuOr9ytAaRvy0j8Wi7EQezKVELvDNS4YngG4bUKhCn07Hrp4eV8M7u3x9qKsWPKNOeGqvw6qPy64XwZVwXCy73K1EbMlRHt_4N8TA",
+    "refresh_token": "AQBWIYvEkBbEY0mIQLdPHfnGQrjeDvS5ny5KYTPZUfAxc68DjNJgvi2LcFHETdBp93q0wXkp8t-QNcjHZyw3YNUETWTC2UiCeCBTvGP_50-CdaoJTy9GJz4IchHAdMppYFA",
+    "expires_in": 3600,
+    "expiry": 1695926545195,
+    "token_type": "Bearer",
+    "market": "BR"
+}

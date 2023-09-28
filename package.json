@@ -26,11 +26,14 @@
     "face-api.js": "^0.22.2",
     "filenamify": "^6.0.0",
     "fluent-ffmpeg": "^2.1.2",
+    "image-downloader": "^4.3.0",
     "log-symbols": "^5.1.0",
     "ora": "^6.3.1",
+    "play-dl": "^1.9.7",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",
     "slugify": "^1.6.5",
+    "spottydl": "^0.2.2",
     "ytdl-core": "^4.11.5",
     "ytpl": "^2.3.0"
   }

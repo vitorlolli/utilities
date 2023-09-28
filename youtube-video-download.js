@@ -1,3 +1,3 @@
 import youtube from "./src/youtube.js"
 
-await youtube.videoDownload({ id: 'O_6TyCjcJUE', audioOnly: true })
+await youtube.videoDownload({ id: 'bWXazVhlyxQ', audioOnly: true })
