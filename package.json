@@ -29,6 +29,7 @@
     "image-downloader": "^4.3.0",
     "log-symbols": "^5.1.0",
     "ora": "^6.3.1",
+    "pdf-lib": "^1.17.1",
     "play-dl": "^1.9.7",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",
