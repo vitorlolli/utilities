@@ -24,6 +24,7 @@
     "chalk": "^5.2.0",
     "date-fns": "^2.30.0",
     "face-api.js": "^0.22.2",
+    "ffmpeg-extract-frames": "^2.0.2",
     "filenamify": "^6.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "image-downloader": "^4.3.0",
