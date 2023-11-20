@@ -5,6 +5,6 @@ import extractFrames from 'ffmpeg-extract-frames'
 
 await extractFrames({
     ffmpegPath: ffmpegPath.path,
-    input: './teste.mp4',
+    input: './robojo.mp4',
     output: './teste/frame-%d.png'
 })
