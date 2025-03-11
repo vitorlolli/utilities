@@ -1,0 +1,65 @@
+[
+    {
+        "nome": "BLOGKONTRIP",
+        "url": "https://blog.kontrip.com.br",
+        "wordpress": {
+            "login_url": "https://blog.kontrip.com.br/wp-admin",
+            "login": "svsolution",
+            "senha": "2rI!fTRB%F^c39S24rAF05vs"
+        }
+    },
+    {
+        "nome": "DESTINOS",
+        "url": "https://destinos.zupper.com.br",
+        "wordpress": {
+            "login_url": "https://destinos.zupper.com.br/wp-admin",
+            "login": "svsolution",
+            "senha": "2rI!fTRB%F^c39S24rAF05vs"
+        }
+    },
+    {
+        "nome": "INOVENTS",
+        "url": "https://inovents.com.br",
+        "wordpress": {
+            "login_url": "https://inovents.com.br/wp-admin",
+            "login": "SV Solution",
+            "senha": "Un24HOJjPlMinG#!StQL!qD0"
+        }
+    },
+    {
+        "nome": "KONTIK",
+        "url": "https://kontik.com.br",
+        "wordpress": {
+            "login_url": "https://kontik.com.br/k0nt1k",
+            "login": "svsolution",
+            "senha": "Jorge@34%67!agosto"
+        }
+    },
+    {
+        "nome": "KONTRIP",
+        "url": "https://kontrip.com.br",
+        "wordpress": {
+            "login_url": "https://kontrip.com.br/wp-admin",
+            "login": "svsolution",
+            "senha": "Un24HOJjPlMinG#!StQL!qD0"
+        }
+    },
+    {
+        "nome": "KONTRIPDAY",
+        "url": "https://kontripday.com.br",
+        "wordpress": {
+            "login_url": "https://kontripday.com.br/wp-admin",
+            "login": "svsolution",
+            "senha": "E0N@@AJcc0p7Do5mVMGILMCl"
+        }
+    },
+    {
+        "nome": "PMEGESTAO",
+        "url": "https://pmegestao.com.br",
+        "wordpress": {
+            "login_url": "https://pmegestao.com.br/wp-admin",
+            "login": "svsolution",
+            "senha": "2rI!fTRB%F^c39S24rAF05vs"
+        }
+    }
+]
