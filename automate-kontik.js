@@ -1,265 +1,277 @@
 import fs from 'fs'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-extra'
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+
+puppeteer.use(StealthPlugin())
 
 const sleep = async ms => new Promise((resolve, reject) => setTimeout(resolve, ms))
 
 const sites = JSON.parse(fs.readFileSync('./sites.json').toString())
 
-for (let index = 0; index < sites.length; index++) {
-    const site = sites[index]
+const proccess = async (sites, stages) => {
+    for (let index = 0; index < sites.length; index++) {
+        const site = sites[index]
 
-    let browser, page
+        let browser, page
 
-    browser = await puppeteer.launch({
-        headless: false,
-        args: ['--ignore-certificate-errors', '--start-maximized']
-    })
+        browser = await puppeteer.launch({
+            headless: false,
+            args: ['--ignore-certificate-errors', '--start-maximized']
+        })
 
-    page = await browser.newPage()
+        page = await browser.newPage()
 
-    const { width, height } = await page.evaluate(() => {
-        return { width: window.screen.width, height: window.screen.height }
-    })
+        const { width, height } = await page.evaluate(() => {
+            return { width: window.screen.width, height: window.screen.height }
+        })
 
-    await browser.close()
+        await page.setViewport({ width, height })
 
-    // backup 1
-    browser = await puppeteer.launch({ 
-        headless: false, 
-        args: ['--ignore-certificate-errors', '--start-maximized']
-    })
+        await browser.setCookie({
+            name: 'cookie_consent',
+            value: 'true',
+            domain: site.url
+        })
 
-    page = await browser.newPage()
+        await page.goto(site.wordpress.login_url)
 
-    await page.setViewport({ width, height })
+        await sleep(5000)
 
-    await page.setRequestInterception(true)
+        await page.type('#user_login', site.wordpress.login)
+        await page.type('#user_pass', site.wordpress.senha)
 
-    page.on('request', (request) => {
-        if (request.url().includes('adblock') || request.url().includes('blocked')) {
-            request.abort()
-        } else {
-            request.continue()
+        await page.click('#wp-submit')
+
+        await sleep(5000)
+
+        if (stages.includes('backup')) {
+            // backup 1  
+
+            await page.click('#wp-admin-bar-wp-logo')
+
+            await sleep(5000)
+
+            await page.setRequestInterception(true)
+
+            page.on('request', (request) => {
+                if (request.url().includes('adblock') || request.url().includes('blocked')) {
+                    request.abort()
+                } else {
+                    request.continue()
+                }
+            })
+
+            page.on('dialog', async dialog => {
+                console.log('Diálogo detectado:', dialog.message())
+                await dialog.accept()
+                await sleep(5000)
+            })
+
+            await page.click('#toplevel_page_WPvivid')
+
+            await sleep(5000)
+
+            let hasRows = await page.evaluate(() => {
+                const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                return tbody && tbody.querySelector('tr') !== null
+            })
+
+            while (hasRows) {
+                await page.click('#wpvivid_backup_list > tr > td:nth-child(6) > div > img')
+
+                await sleep(5000)
+
+                hasRows = await page.evaluate(() => {
+                    const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                    return tbody && tbody.querySelector('tr') !== null
+                })
+            }
+
+            await sleep(5000)
+
+            await page.click('#wpvivid_quickbackup_btn')
+
+            hasRows = await page.evaluate(() => {
+                const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                return tbody && tbody.querySelector('tr') !== null
+            })
+
+            while (!hasRows) {
+                await sleep(5000)
+                hasRows = await page.evaluate(() => {
+                    const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                    return tbody && tbody.querySelector('tr') !== null
+                })
+            }
+
+            const table = await page.$('#wpvivid_backuplist_table')
+
+            await table.screenshot({ path: `./prints/${site.nome}_1_BACKUP_1.png` })
+
+            // backup 2
+
+            await page.goto(site.url)
+
+            await sleep(5000)
+
+            await page.screenshot({ path: `./prints/${site.nome}_1_BACKUP_2.png` })
+
         }
-    })
 
-    await page.goto(site.wordpress.login_url)
+        if (stages.includes('plugins')) {
+            // plugins
 
-    page.on('dialog', async dialog => {
-        console.log('Diálogo detectado:', dialog.message())
-        await dialog.accept()
-        await sleep(5000)
-    })
+            await page.click('#wp-admin-bar-wp-logo')
 
-    await sleep(5000)
+            await sleep(5000)
 
-    await page.type('#user_login', site.wordpress.login)
-    await page.type('#user_pass', site.wordpress.senha)
-
-    await page.click('#wp-submit')
-
-    await sleep(5000)
-
-    await page.click('#toplevel_page_WPvivid')
-
-    await sleep(5000)
-
-    let hasRows = await page.evaluate(() => {
-        const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-        return tbody && tbody.querySelector('tr') !== null
-    })
-
-    while (hasRows) {
-        await page.click('#wpvivid_backup_list > tr > td:nth-child(6) > div > img')
-
-        await sleep(5000)
-
-        hasRows = await page.evaluate(() => {
-            const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            return tbody && tbody.querySelector('tr') !== null
-        })
-    }
-
-    await sleep(5000)
-
-    await page.click('#wpvivid_quickbackup_btn')
-
-    hasRows = await page.evaluate(() => {
-        const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-        return tbody && tbody.querySelector('tr') !== null
-    })
-
-    while (!hasRows) {
-        await sleep(5000)
-        hasRows = await page.evaluate(() => {
-            const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            return tbody && tbody.querySelector('tr') !== null
-        })
-    }
-
-    const table = await page.$('#wpvivid_backuplist_table')
-
-    await table.screenshot({ path: `./prints/${site.nome}_1_BACKUP_1.png` })
-
-    await browser.close()
-
-    // backup 2
-    browser = await puppeteer.launch({ 
-        headless: false, 
-        args: ['--ignore-certificate-errors', '--start-maximized']
-    })
-
-    page = await browser.newPage()
-
-    await page.setViewport({ width, height })
-
-    await page.goto(site.url)
-
-    await sleep(5000)
-
-    await page.screenshot({ path: `./prints/${site.nome}_1_BACKUP_2.png` })
-
-    await browser.close()
-
-    // plugins
-    browser = await puppeteer.launch({
-        headless: false,
-        args: ['--ignore-certificate-errors', '--start-maximized']
-    })
-
-    page = await browser.newPage()
-
-    await page.setViewport({ width, height })
-
-    await page.goto(site.wordpress.login_url)
-
-    await sleep(5000)
-
-    await page.type('#user_login', site.wordpress.login)
-    await page.type('#user_pass', site.wordpress.senha)
-
-    await page.click('#wp-submit')
-
-    await sleep(5000)
-
-    let checkUpdate = await page.$('#wp-admin-bar-updates')
-    if (checkUpdate) {
-        await page.click('#wp-admin-bar-updates')
-
-        await sleep(10000)
-
-        let checkUpdates = await page.evaluate(() => {
-            const tbody = document.querySelector('#update-plugins-table tbody')
-            return tbody && tbody.querySelector('tr') !== null
-        })
-
-        while (checkUpdates) {
-            await page.click('#update-plugins-table > tbody > tr:nth-child(1) > td.check-column')
-            await page.click('#upgrade-plugins')
-
-            await sleep(30000)
-
-            checkUpdate = await page.$('#wp-admin-bar-updates')
+            let checkUpdate = await page.$('#wp-admin-bar-updates')
             if (checkUpdate) {
                 await page.click('#wp-admin-bar-updates')
 
                 await sleep(10000)
 
-                checkUpdates = await page.evaluate(() => {
-                    const tbody = document.querySelector('#update-plugins-table tbody')
-                    return tbody && tbody.querySelector('tr') !== null
-                })
+                const plugins_nomes = []
+                let plugins = await page.$$('#update-plugins-table > tbody > tr > td.plugin-title > p > strong')
+                for (let index = 0; index < plugins.length; index++) {
+                    const element = plugins[index]
+                    const texto = await page.evaluate(el => el.innerText.trim(), element)
+                    plugins_nomes.push(texto)
+                }
+
+                for (let index = 0; index < plugins_nomes.length; index++) {
+                    const nome = plugins_nomes[index]
+                    const trElemento = await page.evaluateHandle((nome) => {
+                        return Array.from(document.querySelectorAll('#update-plugins-table > tbody > tr'))
+                            .find(tr => {
+                                const strongElement = tr.querySelector('td.plugin-title > p > strong')
+                                return strongElement && strongElement.innerText.trim() === nome
+                            })
+                    }, nome)
+
+                    const checkColumn = await trElemento.$('td.check-column')
+                    if (checkColumn) {
+                        await checkColumn.click()
+                        await page.click('#upgrade-plugins')
+                        await sleep(30000)
+
+                        checkUpdate = await page.$('#wp-admin-bar-updates')
+                        if (checkUpdate) {
+                            await page.click('#wp-admin-bar-updates')
+                            await sleep(3000)
+                        }
+                    }
+                }
             }
-            else {
-                checkUpdates = false
+
+            // ativa wordfense
+            await page.click('#menu-plugins')
+
+            await sleep(5000)
+
+            const check_wordfense = await page.$('#activate-wordfence')
+            if (check_wordfense) {
+                await page.click('#activate-wordfence')
+                await sleep(5000)
+            }
+
+            await page.click('#wp-admin-bar-wp-logo')
+
+            await sleep(5000)
+
+            await page.click('#menu-plugins')
+
+            await sleep(5000)
+
+            const plugins_table = await page.$('.wp-list-table.widefat.plugins')
+            await plugins_table.screenshot({ path: `./prints/${site.nome}_2_PLUGINS.png` })
+        }
+
+        if (stages.includes('usuarios')) {
+            // usuarios
+
+            await page.click('#wp-admin-bar-wp-logo')
+
+            await sleep(5000)
+
+            await page.click('#menu-users')
+
+            await sleep(5000)
+
+            const users_table = await page.$('.wp-list-table.widefat.fixed.striped.table-view-list.users')
+            await users_table.screenshot({ path: `./prints/${site.nome}_4_USUARIOS.png` })
+        }
+
+        if (stages.includes('varredura')) {
+            // varredura  
+
+            await page.click('#wp-admin-bar-wp-logo')
+
+            await sleep(5000)
+
+            await page.click('#menu-plugins')
+
+            await sleep(5000)
+
+            const check_wordfense = await page.$('#activate-wordfence')
+            if (check_wordfense) {
+                await page.click('#activate-wordfence')
+                await sleep(5000)
+            }
+
+            await page.goto(`${site.url}/wp-admin/admin.php?page=WordfenceScan`)
+
+            await sleep(5000)
+
+            await page.click('#wf-scan-starter > div > a.wf-btn.wf-btn-primary.wf-btn-callout-subtle.wf-scan-starter-idle')
+
+            await sleep(5000)
+
+            let varrendo = await page.$eval(
+                '#wf-scan-starter > div > a.wf-btn.wf-btn-primary.wf-btn-callout-subtle.wf-scan-starter-idle',
+                el => window.getComputedStyle(el).display === 'none'
+            ).catch(() => false)
+
+            while (varrendo) {
+                varrendo = await page.$eval(
+                    '#wf-scan-starter > div > a.wf-btn.wf-btn-primary.wf-btn-callout-subtle.wf-scan-starter-idle',
+                    el => window.getComputedStyle(el).display === 'none'
+                ).catch(() => false)
+                await sleep(5000)
+            }
+
+            const scan_progress = await page.$('#wf-scan-progress-bar > ul')
+            if (scan_progress) {
+                await page.$eval('#wf-scan-progress-bar > ul', el => {
+                    el.scrollLeft = el.scrollWidth
+                })
+                await scan_progress.screenshot({ path: `./prints/${site.nome}_3_VARREDURA.png` })
             }
 
         }
 
-        let checkUpdatesThemes = await page.evaluate(() => {
-            const tbody = document.querySelector('#update-themes-table tbody')
-            return tbody && tbody.querySelector('tr') !== null
-        })
+        if (stages.includes('bloqueios')) {
+            // bloqueios
 
-        while (checkUpdatesThemes) {
-            await page.click('#update-themes-table > tbody > tr > td.check-column')
-            await page.click('#upgrade-themes')
+            await page.goto(`${site.url}/wp-admin/admin.php?page=Wordfence`)
 
-            await sleep(30000)
+            await sleep(5000)
 
-            checkUpdate = await page.$('#wp-admin-bar-updates')
-            if (checkUpdate) {
-                await page.click('#wp-admin-bar-updates')
-
-                await sleep(10000)
-
-                checkUpdatesThemes = await page.evaluate(() => {
-                    const tbody = document.querySelector('#update-themes-table tbody')
-                    return tbody && tbody.querySelector('tr') !== null
-                })
+            const bloqueios_table = await page.$('.wf-blocks-summary')
+            if (bloqueios_table) {
+                await bloqueios_table.screenshot({ path: `./prints/${site.nome}_5_BLOQUEIOS.png` })
             }
-            else {
-                checkUpdatesThemes = false
-            }            
         }
 
+        await browser.close()
     }
 
-    await page.click('#menu-plugins')
-
-    await sleep(5000)
-
-    const plugins_table = await page.$('.wp-list-table.widefat.plugins')
-    await plugins_table.screenshot({ path: `./prints/${site.nome}_2_PLUGINS.png` })
-
-    await browser.close()
-
-    // varredura
-    // browser = await puppeteer.launch({
-    //     headless: false,
-    //     args: ['--ignore-certificate-errors', '--start-maximized']
-    // })
-
-    // page = await browser.newPage()
-
-    // await page.setViewport({ width, height })
-
-    // await page.goto(site.wordpress.login_url)
-
-    // await sleep(5000)
-
-    // await page.type('#user_login', site.wordpress.login)
-    // await page.type('#user_pass', site.wordpress.senha)
-
-    // await page.click('#wp-submit')
-
-    // await sleep(5000)
-
-    // usuarios
-    browser = await puppeteer.launch({
-        headless: false,
-        args: ['--ignore-certificate-errors', '--start-maximized']
-    })
-
-    page = await browser.newPage()
-
-    await page.setViewport({ width, height })
-
-    await page.goto(site.wordpress.login_url)
-
-    await sleep(5000)
-
-    await page.type('#user_login', site.wordpress.login)
-    await page.type('#user_pass', site.wordpress.senha)
-
-    await page.click('#wp-submit')
-
-    await sleep(5000)
-
-    await page.click('#menu-users')
-
-    await sleep(5000)
-
-    const users_table = await page.$('.wp-list-table.widefat.fixed.striped.table-view-list.users')
-    await users_table.screenshot({ path: `./prints/${site.nome}_4_USUARIOS.png` })
 }
+
+// ['backup', 'plugins', 'usuarios', 'varredura', 'bloqueios']
+await proccess(
+    sites.filter(site => !['BLOGKONTRIP', 'DESTINOS', 'INOVENTS', 'KONTIK', 'KONTRIP'].includes(site.nome)),
+    ['backup', 'plugins', 'usuarios', 'varredura', 'bloqueios']
+)
+
+console.log('FIM')
