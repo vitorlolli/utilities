@@ -376,8 +376,8 @@ const proccess = async (sites, stages) => {
 
 // ['backup', 'plugins', 'usuarios', 'varredura', 'bloqueios']
 await proccess(
-    sites.filter(site => ["BLOGKONTRIP"].includes(site.nome)),
-    ['backup']
+    sites.filter(site => !["BLOGKONTRIP", "DESTINOS", "INOVENTS", "KONTRIP", "KONTRIPDAY", "PMEGESTAO"].includes(site.nome)),
+    ['backup', 'plugins', 'usuarios', 'varredura', 'bloqueios']
 )
 
 console.log('FIM')
