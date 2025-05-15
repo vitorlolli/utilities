@@ -84,80 +84,80 @@ const proccess = async (sites, stages) => {
 
         if (stages.includes('backup')) {
             // backup 1  
-            // console.log('backup1')
+            console.log('backup1')
 
-            // await page.click('#wp-admin-bar-wp-logo')
+            await page.click('#wp-admin-bar-wp-logo')
 
-            // await sleep(5000)
+            await sleep(5000)
 
-            // await page.setRequestInterception(true)
+            await page.setRequestInterception(true)
 
-            // page.on('request', (request) => {
-            //     if (request.url().includes('adblock') || request.url().includes('blocked')) {
-            //         request.abort()
-            //     } else {
-            //         request.continue()
-            //     }
-            // })
+            page.on('request', (request) => {
+                if (request.url().includes('adblock') || request.url().includes('blocked')) {
+                    request.abort()
+                } else {
+                    request.continue()
+                }
+            })
 
-            // page.on('dialog', async dialog => {
-            //     console.log('Diálogo detectado:', dialog.message())
-            //     await dialog.accept()
-            //     await sleep(5000)
-            // })
+            page.on('dialog', async dialog => {
+                console.log('Diálogo detectado:', dialog.message())
+                await dialog.accept()
+                await sleep(5000)
+            })
 
-            // await page.click('#toplevel_page_WPvivid')
+            await page.click('#toplevel_page_WPvivid')
 
-            // await sleep(5000)
+            await sleep(5000)
 
-            // let hasRows = await page.evaluate(() => {
-            //     const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            //     return tbody && tbody.querySelector('tr') !== null
-            // })
+            let hasRows = await page.evaluate(() => {
+                const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                return tbody && tbody.querySelector('tr') !== null
+            })
 
-            // while (hasRows) {
-            //     await page.click('#wpvivid_backup_list > tr > td:nth-child(6) > div > img')
+            while (hasRows) {
+                await page.click('#wpvivid_backup_list > tr > td:nth-child(6) > div > img')
 
-            //     await sleep(5000)
+                await sleep(5000)
 
-            //     hasRows = await page.evaluate(() => {
-            //         const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            //         return tbody && tbody.querySelector('tr') !== null
-            //     })
-            // }
+                hasRows = await page.evaluate(() => {
+                    const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                    return tbody && tbody.querySelector('tr') !== null
+                })
+            }
 
-            // await sleep(5000)
+            await sleep(5000)
 
-            // await page.click('#wpvivid_quickbackup_btn')
+            await page.click('#wpvivid_quickbackup_btn')
 
-            // hasRows = await page.evaluate(() => {
-            //     const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            //     return tbody && tbody.querySelector('tr') !== null
-            // })
+            hasRows = await page.evaluate(() => {
+                const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                return tbody && tbody.querySelector('tr') !== null
+            })
 
-            // while (!hasRows) {
-            //     await sleep(5000)
-            //     hasRows = await page.evaluate(() => {
-            //         const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
-            //         return tbody && tbody.querySelector('tr') !== null
-            //     })
-            // }
+            while (!hasRows) {
+                await sleep(5000)
+                hasRows = await page.evaluate(() => {
+                    const tbody = document.querySelector('#wpvivid_backuplist_table tbody')
+                    return tbody && tbody.querySelector('tr') !== null
+                })
+            }
 
-            // const table = await page.$('#wpvivid_backuplist_table')
+            const table = await page.$('#wpvivid_backuplist_table')
 
-            // await table.screenshot({ path: `./prints/${site.nome}_1_BACKUP_1.png` })
+            await table.screenshot({ path: `./prints/${site.nome}_1_BACKUP_1.png` })
 
             // backup 2
 
-            // console.log('backup2')
+            console.log('backup2')
 
-            // await page.goto(site.url)
+            await page.goto(site.url)
 
-            // await sleep(5000)
+            await sleep(5000)
 
-            // await page.screenshot({ path: `./prints/${site.nome}_1_BACKUP_2.png` })
+            await page.screenshot({ path: `./prints/${site.nome}_1_BACKUP_2.png` })
 
-            // console.log('download backup')
+            console.log('download backup')
 
             await page.click('#wp-admin-bar-wp-logo')
 
